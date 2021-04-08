@@ -2,7 +2,7 @@
 import { put, call, takeEvery } from 'redux-saga/effects';
 import { AxiosResponse } from "axios";
 
-interface Payload {
+/*interface Payload {
     firstName: string;
     lastName: string;
     Email: string; 
@@ -24,6 +24,7 @@ const callApi = async ({
         Email 
     );
 };
+*/
 
 const initialState = {
     loading: true,
@@ -159,9 +160,10 @@ export function* UpdateClient(action) {
         yield put(updateClientfailure(error));
     }
 }
+/*
 export function* ValidateClient(action) {
     try {
-        console.log("1");
+       
         yield put(validateClientRequest());
         console.log("2");
         const data = yield call(callApi, action.payload);
@@ -176,27 +178,27 @@ export function* ValidateClient(action) {
         
     
 }
-/*
-export function ValidateClient(action) {
-    console.log("hi");
-    console.log(action);
-    return async (dispatch) => {
-        dispatch(validateClientRequest());
-         await axios.get('https://localhost:44325/api/Clients/' + action.firstName + "/" + action.lastName + "/" + action.Email)
-           .then(res => {
-               console.log(res);
-               console.log(res.status);
-               if (res.status === 204)
-                   validateClientSuccess();
-           })
-            .catch(
+*/
 
-                err => dispatch(validateClientfailure(err))
-            );
+export function* ValidateClient(action) {
+    try {
+        console.log(action);
+        yield put(validateClientRequest());
+        const data = yield call(() => {
+            return axios.get('https://localhost:44325/api/Clients/' + action.payload.firstName + "/" + action.payload.lastName + "/" + action.payload.Email)
+        });
+        console.log(data);
+        if(data.data.clientId==='111')
+            yield put(validateClientSuccess(204));
+        else
+            yield put(validateClientfailure(data));
+
+    }catch(error){
+
+    yield put(validateClientfailure(error));
+           
     }
 }
-
-*/
 
 
 const ClientReducer = (state = initialState, action) => {

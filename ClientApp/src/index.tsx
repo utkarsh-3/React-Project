@@ -16,10 +16,8 @@ let store = createStore(ClientReducer, compose(applyMiddleware(sagaMiddleware, t
 );
 sagaMiddleware.run(watchGetClient);
 store.subscribe(() => { console.log(store.getState()) });
-console.log(store.getState());
 store.dispatch(getClient());
-//let obj = { firstName: "Utkarsh Kendre" , clientId:"111"}
-//store.dispatch(updateClient(obj));
+
 
 
 

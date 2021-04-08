@@ -1,244 +1,480 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import './Home.css';
-import { getClient, ValidateClient } from '../store/fetchClient';
-import { CountryDropdown, RegionDropdown, CountryRegionData } from 'react-country-region-selector';
-import { Collapse } from 'reactstrap';
-
-
+import '../static/Home.css';
+import { Collapse, Button, CardBody, Card } from 'reactstrap';
+import collapseIcon from '../static/collapse.png'
+import expandIcon from '../static/expand.png'
+import Input from './Input';
+import Header from './Header';
 
 class Home extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            
-            company: "",
-            prefix: "",
-            firstName: "",
-            lastName: "",
-            middleName: "",
-            nickName: "",
+            cardOne: {
+                Company: {
+                    elementType: "input",
+                    elementConfig: {
+                        Type: "checkbox",
+                        placeholder: "",
+                    },
+                    value: "",
+                    shouldValidate: false,
+                    touched: false,
+                    valid:true
+                },
+                Prefix: {
+                    elementType: "input",
+                    elementConfig: {
+                        Type: "text",
+                        placeholder: "",
+                    },
+                    value: "",
+                    validations: {
+                        maxLength: 10,
+                    },
+                    valid: true,
+                    touched: false,
+                    shouldValidate: true
+                },
+                FirstName: {
+                    elementType: "input",
+                    elementConfig: {
+                        Type: "text",
+                        placeholder: "",
+                    },
+                    value: "",
+                    validations: {
+                        required: true,
+                        maxLength:50
+                    },
+                    valid: false,
+                    touched: false,
+                    shouldValidate: true
+                },
+                LastName: {
+                    elementType: "input",
+                    elementConfig: {
+                        Type: "text",
+                        placeholder: "",
+                    },
+                    value: "",
+                    validations: {
+                        required: true,
+                          maxLength: 50
+                    },
+                    valid: false,
+                    touched: false,
+                    shouldValidate: true
+                },
+                MiddleName: {
+                    elementType: "input",
+                    elementConfig: {
+                        Type: "text",
+                        placeholder: "",
+                    },
+                    value: "",
+                    validations: {
+                        maxLength: 50,
+                    },
+                    valid: true,
+                    touched: false,
+                    shouldValidate: true
+                },
+                NickName: {
+                    elementType: "input",
+                    elementConfig: {
+                        Type: "text",
+                        placeholder: "",
+                    },
+                    value: "",
+                    validations: {
+                        maxLength: 50,
+                    },
+                    valid: true,
+                    touched: false,
+                    shouldValidate: true
+                },
+                Email: {
+                    elementType: "input",
+                    elementConfig: {
+                        Type: "email",
+                        placeholder: "",
+                    },
+                    value: "",
+                    touched: false,
+                    shouldValidate: false,
+                    valid:true
+                },
+               
+            },
+            cardTwo: {
+                Address: {
+                    elementType: "input",
+                    elementConfig: {
+                        Type: "text",
+                        placeholder: "",
+                    },
+                    value: "",
+                    valid: true,
+                    touched: false,
+                    shouldValidate: true,
+                    validations: {
+                        maxLength: 100,
+                    },
+                },
+                City: {
+                    elementType: "input",
+                    elementConfig: {
+                        Type: "text",
+                        placeholder: "",
+                    },
+                    value: "",
+                    valid: true,
+                    touched: false,
+                    shouldValidate: true,
+                    validations: {
+                        maxLength: 50,
+                    },
+                },
+                Country: {
+                    elementType: "CountryDropdown",
+                    value: "United States",
+                    shouldValidate: false,
+                    valid: true
+                },
+                State: {
+                    elementType: "RegionDropdown",
+                    elementConfig: {
+                        country: "United States",
+                       
+                    },
+                    value: "",
+                    shouldValidate: false,
+                    valid: true
+                    
+                },
+                PostalCode: {
+                    elementType: "input",
+                    elementConfig: {
+                        Type: "text",
+                        placeholder: "",
+                    },
+                    value: "",
+                    valid: true,
+                    touched: false,
+                    shouldValidate: true,
+                    validations: {
+                        maxLength: 30,
+                    },
+                },
+               
+            },
             clientId: "",
-            address: "",
-            city: "",
-            country: "",
-            state: "",
-            postalCode: "",
-            email: "",
+            
             active: true,
-            valid: false
+            valid: false,
+            cardone: true,
+            cardtwo: true,
+            iscardOneChanged: false,
+            iscardTwoChanged: false,
+            cardTwoIsValid: true,
+            cardOneIsValid: true
             
         };
-        console.log(this.state);
-        this.handleChange = this.handleChange.bind(this);
+        
+        
     }
-    selectCountry(val) {
-        this.setState({ country: val });
+    makeValid (){
+        console.log('in');
+        this.setState({ valid: !this.state.valid });
+    }
+    toggleone = () => {
+
+        this.setState({ cardone: !this.state.cardone })
+    }
+    toggletwo = () => {
+
+        this.setState({ cardtwo: !this.state.cardtwo })
+    }
+    collapseAll = () => {
+        this.setState({ cardone: false, cardtwo: false});
+    }
+    expandAll = () => {
+        this.setState({ cardone: true, cardtwo: true })
+    }
+    checkValidity = (value, rules) => {
+        let isValid = true;
+        if (rules.required)
+            isValid = !(value.trim() === "") && isValid;
+        if (rules.maxLength) {
+            value = value.trim();
+            isValid = value.length <= rules.maxLength && isValid;
+        }
+           
+        return isValid; 
+    }
+    cardOneInputChangedHandler = (event, cardOneElementIdentifier) => {
+        const updatedcardOne = {
+            ...this.state.cardOne
+        };
+        const updatedcardoneElement = {
+            ...updatedcardOne[cardOneElementIdentifier]
+        };
+        updatedcardoneElement.value = event.target.value;
+        updatedcardoneElement.touched = true;
+        if (updatedcardoneElement.shouldValidate)
+        updatedcardoneElement.valid = this.checkValidity(event.target.value, updatedcardoneElement.validations)
+        updatedcardOne[cardOneElementIdentifier] = updatedcardoneElement;
+
+        let cardOneIsValid = true;
+        for (let cardOneElementIdentifier in updatedcardOne)
+            cardOneIsValid = updatedcardOne[cardOneElementIdentifier].valid && cardOneIsValid;
+
+        this.setState({ cardOne: updatedcardOne, iscardOneChanged: true, cardOneIsValid: cardOneIsValid});
+
+    }
+    cardTwoInputChangedHandler = (event, cardTwoElementIdentifier) => {
+        const updatedcardTwo = {
+            ...this.state.cardTwo
+        };
+        const updatedcardtwoElement = {
+            ...updatedcardTwo[cardTwoElementIdentifier]
+        };
+        
+        if (cardTwoElementIdentifier === 'Country') {
+            updatedcardtwoElement.value = event;
+            const updatedcardtwoElementState = {
+                ...updatedcardTwo['State']
+            }
+            updatedcardtwoElementState.elementConfig.country = event;
+            updatedcardTwo[cardTwoElementIdentifier] = updatedcardtwoElement;
+            updatedcardTwo['State'] = updatedcardtwoElementState;
+
+            this.setState({ cardTwo: updatedcardTwo, iscardTwoChanged: true });
+        }
+        else {
+            let cardTwoIsValid = true;
+            if (cardTwoElementIdentifier === 'State')
+                updatedcardtwoElement.value = event;
+
+            else{
+                updatedcardtwoElement.value = event.target.value;
+                updatedcardtwoElement.valid = this.checkValidity(event.target.value, updatedcardtwoElement.validations)
+                updatedcardtwoElement.touched = true;
+                
+                for (let cardTwoElementIdentifier in updatedcardTwo) 
+                    cardTwoIsValid = updatedcardTwo[cardTwoElementIdentifier].valid && cardTwoIsValid;
+                    
+                
+                cardTwoIsValid = updatedcardTwo[cardTwoElementIdentifier].valid && cardTwoIsValid;
+
+            }
+            
+            updatedcardTwo[cardTwoElementIdentifier] = updatedcardtwoElement;
+            this.setState({ cardTwo: updatedcardTwo, iscardTwoChanged: true, cardTwoIsValid: cardTwoIsValid });
+        }
     }
 
-    selectState(val) {
-        this.setState({ state: val });
-    }
 
     headerDeactivate = "active";
-    handleChange = ({ target }) => {
-        this.setState({ [target.name]: target.value });
-    };
+
+    
+
+
     deactivate = ({ target }) => {
         this.setState({ active: false });
         this.headerDeactivate = "inactive";
         this.props.client.isDeactive= true;
         { this.props.updateData(this.props.client)  }
     };
-    handleCollapse = () => {
-        Collapse('show');
-    }
-
+    
     validate = (event) => {
         event.preventDefault();
         console.log("In validator");
-        let clientIn = {
-            company: this.state.company,
-            prefix: this.state.prefix,
-            firstName: this.state.firstName,
-            lastName: this.state.lastName,
-            middleName: this.state.middleName,
-            nickName: this.state.nickName,
-            clientId: this.props.client.clientId,
-            address: this.state.address,
-            city: this.state.city,
-            country: this.state.country,
-            state: this.state.state,
-            postalCode: this.state.postalCode,
-            email: this.state.email
-        }
-        if (clientIn.company === "")
-            clientIn.company = this.props.client.company
-        if (clientIn.address === "")
-            clientIn.address = this.props.client.address
-        if (clientIn.city === "")
-            clientIn.city = this.props.client.city
-        if (clientIn.postalCode === "")
-            clientIn.postalCode = this.props.client.postalCode
-        if (clientIn.nickName ==="")
-            clientIn.nickName = this.props.client.nickName
-        if (clientIn.middleName === "")
-            clientIn.middleName = this.props.client.middleName
-        if (clientIn.firstName === "")
-            clientIn.firstName = this.props.client.firstName
-        if (clientIn.lastName === "")
-            clientIn.lastName = this.props.client.lastName
-        if (clientIn.prefix ==="")
-            clientIn.prefix = this.props.client.prefix
-        if (clientIn.country === "")
-            clientIn.country = this.props.client.country
-        if (clientIn.state === "")
-            clientIn.state = this.props.client.state
-        if (clientIn.email === "")
-            clientIn.email = this.props.client.email
+        console.log(this.state);
+        if (!this.state.iscardOneChanged && !this.state.iscardTwoChanged)
+            alert('Please Input  Values !');
+        if (!((this.state.iscardOneChanged && this.state.iscardTwoChanged ) || (this.state.cardOneIsValid && this.state.cardTwoIsValid)))
+            alert('Please Input Valid Values !');
+        else {
+            const cardOneValueArray = [];
+            const cardTwoValueArray = [];
+            for (let key in this.state.cardOne)
+                cardOneValueArray.push({
+                    id: key,
+                    config: this.state.cardOne[key]
+                });
+            for (let key in this.state.cardTwo)
+                cardTwoValueArray.push({
+                    id: key,
+                    config: this.state.cardTwo[key]
+                });
+            
+            let clientIn = {
+                company: cardOneValueArray[0].config.value,
+                prefix: cardOneValueArray[1].config.value,
+                firstName: cardOneValueArray[2].config.value,
+                lastName: cardOneValueArray[3].config.value,
+                middleName: cardOneValueArray[4].config.value,
+                nickName: cardOneValueArray[5].config.value,
+                email: cardOneValueArray[6].config.value,
+                clientId: this.props.client.clientId,
+                address: cardTwoValueArray[0].config.value,
+                city: cardTwoValueArray[1].config.value,
+                country: cardTwoValueArray[2].config.value,
+                state: cardTwoValueArray[3].config.value,
+                postalCode: cardTwoValueArray[4].config.value
+                
+            }
 
-        let validatorObject = {
-            firstName: clientIn.firstName,
-            lastName: clientIn.lastName,
-            Email: clientIn.email
-        }
+            if (clientIn.company === "")
+                clientIn.company = this.props.client.company
+            if (clientIn.address === "")
+                clientIn.address = this.props.client.address
+            if (clientIn.city === "")
+                clientIn.city = this.props.client.city
+            if (clientIn.postalCode === "")
+                clientIn.postalCode = this.props.client.postalCode
+            if (clientIn.nickName === "")
+                clientIn.nickName = this.props.client.nickName
+            if (clientIn.middleName === "")
+                clientIn.middleName = this.props.client.middleName
+            if (clientIn.firstName === "")
+                clientIn.firstName = this.props.client.firstName
+            if (clientIn.lastName === "")
+                clientIn.lastName = this.props.client.lastName
+            if (clientIn.prefix === "")
+                clientIn.prefix = this.props.client.prefix
+            if (clientIn.country === "")
+                clientIn.country = this.props.client.country
+            if (clientIn.state === "")
+                clientIn.state = this.props.client.state
+            if (clientIn.email === "")
+                clientIn.email = this.props.client.email
 
-       // console.log(clientIn);
-        { this.props.ValidateClient(validatorObject) }
-        //this.finalvalid(clientIn)
-        setTimeout(this.finalvalid, 100, clientIn);
+            let validatorObject = {
+                firstName: clientIn.firstName,
+                lastName: clientIn.lastName,
+                Email: clientIn.email
+            }
+           
+                { this.props.ValidateClient(validatorObject) }
+
+                setTimeout(this.finalvalid, 1000, clientIn);
+            
         
-
+        }
     }
     finalvalid = (clientIn) => {
-        console.log("Validity :")
-
         if (this.props.isValid)
         { this.props.updateData(clientIn) }
         else
             alert("User Already Exist !")
     }
-    
+    buttonDisable = "return false";
+   
     render() {
-        const country = "United States";
-        const state = "";
+       
+        if (!this.state.active)
+            this.buttonDisable = "true"
+
+        const cardOneArray = [];
+        const cardTwoArray = [];
+        for (let key in this.state.cardOne)
+            cardOneArray.push({
+                id:key,
+                config: this.state.cardOne[key]
+            });
+        for (let key in this.state.cardTwo)
+            cardTwoArray.push({
+                id: key,
+                config: this.state.cardTwo[key]
+            });
+
+        
 
         return (
             <div className="body">
                 <div className={this.headerDeactivate}>
-                   
-                        <p>Clinet Info
-                            <h4>{this.props.client.firstName} {this.props.client.lastName} </h4>
-                            <h6>Id:{this.props.client.clientId}</h6>
-                        </p>
-                 
+                    <Header firstName={this.props.client.firstName} lastName={this.props.client.lastName} clientID={this.props.client.clientId}/>   
                 </div>
-                <br/><br/>
-                <div className="headerinfo2">
-                    <p><b>MindBody Account</b></p><br /><br />
-                </div>
-                <br /><br />
+                
                 <br />
                 <div className="bodyinfo">
-                    <div className="bodybuttons">
-                        <br />
-                        <button className="btn btn-primary" data-toggle="collapse" data-target=".demo" aria-controls="namecard addresscard" disabled={!this.state.active}>Collapse All</button>
-                        <button className="btn btn-primary" data-toggle="collapse" data-target=".demo" aria-controls="namecard addresscard" disabled={!this.state.active}>Expand All</button>
-                        <button className="btn btn-primary" type="button" disabled={!this.state.active} onClick={this.validate}>Save</button>
-                        <button className="btn btn-primary" type="button" disabled={!this.state.active} onClick={this.deactivate}>Deactivate</button>
-                        <br />
+                    
+                    <br /><div className="buttons">
+                    
+                        <button type="button" className="btn btn-primary" disabled={!this.state.active && this.state.isStateChanged} onClick={this.validate}>Save</button>&nbsp;
+                        <button type="button" className="btn btn-primary" disabled={!this.state.active} onClick={this.deactivate}>Deactivate</button>&nbsp;<br />
+                        <img src={collapseIcon} width="15" height="15" />&nbsp;
+                        <a onClick={this.collapseAll} >Collapse All</a>&nbsp;&nbsp;
+                        <img src={expandIcon} width="15" height="15" />&nbsp;
+                        <a onClick={this.expandAll} >Expand All</a>&nbsp;
+                    </div> <br />
+                   <br/>
                    
-                    </div>
-                    <br /> <br />
-                   
-                        <div className="container" id="parent">
+                  
                             <div className="card-row">
 
-                                    <div className="card">
-                                        <div className="card-header" >
-                                            <a data-toggle="collapse" href="#namecard" aria-expanded="false" aria-controls="namecard"> Edit name </a>
-                                        </div>
+                                <Card>
+                                     <Button color="white" style={{ textAlign: 'left' }} className="cardbuttons" onClick={this.toggleone}> Edit name </Button>
+                                     <Collapse isOpen={this.state.cardone}>
+                                        <CardBody>
+                                            <form >
+                                                {cardOneArray.map(cardOne =>
+                                                    <Input
+                                                        key={cardOne.id}
+                                                        label={cardOne.id}
+                                                        elementType={cardOne.config.elementType}
+                                                        elementConfig={cardOne.config.elementConfig}
+                                                        value={cardOne.config.value}
+                                                        inValid={!cardOne.config.valid}
+                                                        shouldValidate={cardOne.config.shouldValidate}
+                                                        touched={this.state.iscardOneChanged}
+                                                        changed={(event) => this.cardOneInputChangedHandler(event, cardOne.id)}
+                                                     />
+                                                )}
 
-                                        <div className="collapse demo" id="namecard" >
-                                            <div className="card-body">
-                                                <form >
-                                                    <table>
-                                                            <tr>
-                                                        <td>Company :</td> <td><input type="Checkbox" name="company" defaultValue={this.state.company} onChange={this.handleChange} /></td><br />
-                                                            </tr>
-                                                            <tr>
-                                                        <td>ID :</td> <td>{this.props.client.clientId}</td><br />
-                                                            </tr>
-                                                            <tr>
-                                                        <td>Prefix :</td> <td><input type="text" name="prefix" defaultValue={this.state.prefix} onChange={this.handleChange} /></td><br />
-                                                            </tr>
-                                                            <tr>
-                                                        <td>FirstName :</td> <td><input type="text" name="firstName" defaultValue={this.state.firstName} onChange={this.handleChange} required /></td><br />
-                                                            </tr>
-                                                            <tr>
-                                                        <td>MiddleName :</td> <td><input type="text" name="middleName" defaultValue={this.state.middleName} onChange={this.handleChange} /></td><br />
-                                                            </tr>
-                                                            <tr>
-                                                        <td>LastName :</td> <td><input type="text" name="lastName" defaultValue={this.state.lastName} onChange={this.handleChange} required /></td><br />
-                                                            </tr>
-                                                            <tr>
-                                                        <td>NickName :</td> <td><input type="text" name="nickName" defaultValue={this.state.nickName} onChange={this.handleChange} /></td><br />
-                                                            </tr>
-                                                            <tr>
-                                                        <td>Email :</td> <td><input type="email" name="email" defaultValue={this.state.email} onChange={this.handleChange} /></td><br />
-                                                            </tr>
-                                               
-                                                    </table>
-                                            
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                   
-                                    <br/><br/>
+                                            </form>
+                                        </CardBody>
+                                    </Collapse>
+                                </Card>
+                                <br/><br/>
                            
 
-                                    <div className="card">
-                                        <div className="card-header">
-                                            <a data-toggle="collapse" href="#addresscard">   Address</a>
-                                        </div>
-                                         <div className="collapse demo" id="addresscard" aria-expanded="false" aria-controls="addresscard">
-                                             <div className="card-body">
-                                                    <form>
-                                                        <table>
-                                                            <tr>
-                                                                <td>Address :</td> <td><input type="textArea"  name="address" defaultValue={this.state.address} onChange={this.handleChange} /></td><br />
-                                                            </tr>
-                                                            
-                                                            <tr>
-                                                                <td>PostalCode :</td> <td><input type="text" name="postalCode" defaultValue={this.state.postalCode} onChange={this.handleChange} /></td><br />
-                                                            </tr>
-                                                            <tr>
-                                                                <td>Country :</td> <td><CountryDropdown value={country} onChange={(val) => this.selectCountry(val)} /></td><br />
-                                                            </tr>
-                                                            <tr>
-                                                                <td>State :</td> <td><RegionDropdown country={country} value={state} defaultOptionLabel="Select State" onChange={(val) => this.selectState(val)} /></td><br />
-                                                            </tr>
-
-                                              
-                                                        </table>
-                                                    </form>
-                                             </div>
-                                         </div>
-                                    </div>
-                                
-                          
+                            
+                                <Card>
+                                    <Button color="white" style={{ textAlign: 'left' }} className="cardbuttons" onClick={this.toggletwo}>   Address</Button>
+                                    <Collapse isOpen={this.state.cardtwo}>
+                                        <CardBody>
+                                            <form>
+                                                {cardTwoArray.map(cardTwo =>
+                                                    <Input
+                                                        key={cardTwo.id}
+                                                        label={cardTwo.id}
+                                                        elementType={cardTwo.config.elementType}
+                                                        elementConfig={cardTwo.config.elementConfig}
+                                                        value={cardTwo.config.value}
+                                                        inValid={!cardTwo.config.valid}
+                                                        shouldValidate={cardTwo.config.shouldValidate}
+                                                        touched={this.state.iscardTwoChanged}
+                                                        changed={(event) => this.cardTwoInputChangedHandler(event, cardTwo.id)}
+                                                    />
+                                                )}
+                                            </form>
+                                        </CardBody>
+                                    </Collapse>
+                                </Card>
                             </div>
-                        </div>
-
-                        <div>
+                        
                             <br /><br />
-                            <br />
-                        </div>
-                            <input className="btn btn-primary" type="submit" value="Submit" onClick={this.validate} />
-                        <br/>
-                    
+                           
+                            <div className="buttonlast">
+                                <button type="button" style={{ textAlign: 'center' }} className="btn btn-primary " disabled={!this.state.active} onClick={this.validate}>Save</button>
+                            </div>
+                            <br /><br />
                 </div>
 
                 

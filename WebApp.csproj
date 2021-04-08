@@ -29,6 +29,8 @@
   <ItemGroup>
     <None Remove="ClientApp\src\components\Counter.tsx" />
     <None Remove="ClientApp\src\components\FetchData.tsx" />
+    <None Remove="ClientApp\src\components\Header.tsx" />
+    <None Remove="ClientApp\src\components\Input.tsx" />
     <None Remove="ClientApp\src\components\Layout.tsx" />
     <None Remove="ClientApp\src\components\NavMenu.css" />
     <None Remove="ClientApp\src\components\NavMenu.tsx" />
@@ -44,6 +46,8 @@
 
 
   <ItemGroup>
+    <TypeScriptCompile Include="ClientApp\src\components\Header.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\components\Input.tsx" />
     <TypeScriptCompile Include="ClientApp\src\store\fetchClient.ts" />
   </ItemGroup>
 
